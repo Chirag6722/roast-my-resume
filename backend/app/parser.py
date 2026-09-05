@@ -1,8 +1,11 @@
 import io
+import logging
 import re
 from typing import Dict, Any, List, Optional
 from pypdf import PdfReader
 from docx import Document
+
+logger = logging.getLogger(__name__)
 
 class ResumeParser:
     # Requesting this name with empty bytes yields the built-in demo resume.
@@ -21,9 +24,11 @@ class ResumeParser:
         except ValueError:
             raise
         except Exception as e:
+            # The class name means nothing to a job seeker; keep it in the log.
+            logger.warning("PDF parse failed: %s: %s", type(e).__name__, e)
             raise ValueError(
                 "That PDF could not be opened. It may be corrupted or password protected. "
-                f"Try re-exporting it, or paste the text instead. ({type(e).__name__})"
+                "Try re-exporting it, or paste the text instead."
             )
 
     # Legacy Word documents are OLE compound files; python-docx only reads the
@@ -48,9 +53,10 @@ class ResumeParser:
         except ValueError:
             raise
         except Exception as e:
+            logger.warning("DOCX parse failed: %s: %s", type(e).__name__, e)
             raise ValueError(
                 "That Word file could not be read. Make sure it is a real .docx, "
-                f"or save it as a PDF and try again. ({type(e).__name__})"
+                "or save it as a PDF and try again."
             )
 
     @staticmethod
@@ -58,7 +64,8 @@ class ResumeParser:
         try:
             return file_bytes.decode("utf-8", errors="replace").strip()
         except Exception as e:
-            raise ValueError(f"Failed to parse text file: {str(e)}")
+            logger.warning("Text parse failed: %s: %s", type(e).__name__, e)
+            raise ValueError("That text file could not be read. Try saving it as UTF-8 plain text.")
 
     @classmethod
     def parse_file(cls, filename: str, file_bytes: bytes) -> Dict[str, Any]:

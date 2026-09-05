@@ -52,6 +52,33 @@ The rule-based engine in `backend/app/local_roaster.py` scores the resume from w
 
 ---
 
+## 🧪 Tests
+
+115 checks covering the behaviour that is easy to get wrong: who can read whose
+roasts, what the public feed is allowed to publish, whether the scorer and the
+Live Tuner agree, and whether the roast copy actually refers to the resume in
+front of it.
+
+```bash
+cd backend && pip install -r requirements-dev.txt && python -m pytest tests -q
+```
+
+```bash
+cd frontend && npm test
+```
+
+| Suite | Covers |
+| --- | --- |
+| `backend/tests/test_auth.py` | Registration, login, token rejection, password length limits |
+| `backend/tests/test_privacy.py` | History scoping, ownership on read and delete, filename redaction in the public feed |
+| `backend/tests/test_uploads.py` | Parsing PDF/DOCX/TXT and explaining every failure in plain language |
+| `backend/tests/test_scoring.py` | The ATS rubric, and that acting on the rewrite raises the score |
+| `backend/tests/test_roast_quality.py` | Verdict variety, tone matching the score, and that nothing is invented |
+| `frontend/src/services/api.test.ts` | Offline behaviour and turning server errors into sentences |
+| `frontend/src/utils/*.test.ts` | Job-description matching, Markdown rendering, speech chunking |
+
+---
+
 ## 🔐 Before deploying anywhere public
 
 The backend signs login sessions with `SECRET_KEY`. If it is unset, the app falls back to a
