@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A second push should cancel the run still going for the older commit.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+
+      # Installing from the requirements files, rather than a hand-written list,
+      # is what proves a fresh clone can actually run this project.
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Run tests
+        working-directory: backend
+        run: python -m pytest tests -q
+
+  frontend:
+    name: Frontend (vitest, types, lint, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Unit tests
+        working-directory: frontend
+        run: npm test
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      # `npm run build` type-checks with `tsc -b` before bundling, so this
+      # covers both.
+      - name: Type check and build
+        working-directory: frontend
+        run: npm run build
