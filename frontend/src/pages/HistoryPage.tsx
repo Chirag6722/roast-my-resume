@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Flame, Trash2, ArrowRight, Loader2, TrendingUp, Award } from 'lucide-react';
 import type { HistoryItemSummary, RoastResult } from '../types';
 import { api } from '../services/api';
+import { ScoreTrend } from '../components/ScoreTrend';
 
 interface HistoryPageProps {
   onNavigate: (page: string) => void;
@@ -127,6 +128,9 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ onNavigate, onSelectRo
           </div>
         </div>
       )}
+
+      {/* Needs at least two roasts before a trend means anything. */}
+      {history.length > 1 && <ScoreTrend history={history} />}
 
       {error && (
         <div role="alert" className="bg-[#2A0E0E] border border-red-500/50 text-red-300 font-mono text-xs px-4 py-3 rounded-sm flex items-center justify-between gap-4">

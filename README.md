@@ -11,7 +11,7 @@
 - **🛠️ Section-by-Section Critiques**: Exact diagnosis, actionable fixes, and rewritten snippets for Summary, Experience, Skills, and Projects.
 - **✨ Polished Rewrite**: Your resume rebuilt from its own content, with weak bullets turned into achievement lines. Copy it or download as `.txt` / `.md`.
 - **📸 Viral Shareable Roast Cards**: Auto-generated high-res social card with your worst roast lines, ready for Twitter/X, LinkedIn, and Instagram.
-- **📖 The Burn Book (History)**: Save past burns, track improvement over time, and revisit your rewrites.
+- **📖 The Burn Book (History)**: Every past roast, plus a score-over-time chart so you can see a resume actually getting better.
 - **🔐 Auth & Guest Mode**: Sign up (`SIGN UP. GET TORCHED.`), log in (`BACK FOR MORE PAIN?`), or continue instantly as guest.
 
 ---
@@ -54,7 +54,7 @@ The rule-based engine in `backend/app/local_roaster.py` scores the resume from w
 
 ## 🧪 Tests
 
-122 checks covering the behaviour that is easy to get wrong: who can read whose
+131 checks covering the behaviour that is easy to get wrong: who can read whose
 roasts, what the public feed is allowed to publish, whether the scorer and the
 Live Tuner agree, and whether the roast copy actually refers to the resume in
 front of it.
@@ -77,6 +77,7 @@ cd frontend && npm test
 | `frontend/src/services/api.test.ts` | Offline behaviour and turning server errors into sentences |
 | `frontend/src/utils/*.test.ts` | Job-description matching, Markdown rendering, speech chunking |
 | `frontend/src/routes.test.ts` | URL to screen mapping, so back, refresh and shared links work |
+| `frontend/src/utils/scoreTrend.test.ts` | Trend geometry, including a flat run and the ends of the scale |
 
 ---
 
