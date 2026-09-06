@@ -54,7 +54,7 @@ The rule-based engine in `backend/app/local_roaster.py` scores the resume from w
 
 ## 🧪 Tests
 
-115 checks covering the behaviour that is easy to get wrong: who can read whose
+122 checks covering the behaviour that is easy to get wrong: who can read whose
 roasts, what the public feed is allowed to publish, whether the scorer and the
 Live Tuner agree, and whether the roast copy actually refers to the resume in
 front of it.
@@ -76,6 +76,7 @@ cd frontend && npm test
 | `backend/tests/test_roast_quality.py` | Verdict variety, tone matching the score, and that nothing is invented |
 | `frontend/src/services/api.test.ts` | Offline behaviour and turning server errors into sentences |
 | `frontend/src/utils/*.test.ts` | Job-description matching, Markdown rendering, speech chunking |
+| `frontend/src/routes.test.ts` | URL to screen mapping, so back, refresh and shared links work |
 
 ---
 
@@ -91,10 +92,14 @@ Copy `backend/.env.example` to `backend/.env` and set a real value:
 python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
 
-Two other things to change before exposing this to the internet:
+Three other things to handle before exposing this to the internet:
 
 - **CORS** is set to `*` in `backend/app/config.py`. Restrict it to your own domain.
 - **The API base URL** is hardcoded to `http://localhost:8000/api` in `frontend/src/services/api.ts`.
+- **Serve `index.html` for unknown paths.** Each screen has its own address (`/roast`, `/history`,
+  `/login`, `/register`), so a static host must fall back to `index.html` or a refresh on
+  `/history` will 404. Vite's dev server and `vite preview` already do this; nginx needs
+  `try_files $uri /index.html;` and Netlify or Vercel need an equivalent rewrite.
 
 The SQLite database (`backend/roast_app.db`) holds account emails, password hashes, and the full
 text of every resume roasted. It is gitignored and should never be committed.
