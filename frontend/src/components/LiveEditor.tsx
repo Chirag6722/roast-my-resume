@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
-import { RefreshCw, CheckCircle2, AlertTriangle, Wand2, TrendingUp, TrendingDown } from 'lucide-react';
+import { RefreshCw, CheckCircle2, AlertTriangle, Wand2, TrendingUp, TrendingDown, Flame } from 'lucide-react';
 import { api } from '../services/api';
 
 interface LiveEditorProps {
   initialText: string;
   originalScore: number;
+  /** Run a full roast on the edited text, so the result is saved and charted. */
+  onRoastVersion?: (text: string) => void | Promise<void>;
+  isRoasting?: boolean;
 }
 
-export const LiveEditor: React.FC<LiveEditorProps> = ({ initialText, originalScore }) => {
+export const LiveEditor: React.FC<LiveEditorProps> = ({
+  initialText,
+  originalScore,
+  onRoastVersion,
+  isRoasting = false,
+}) => {
   const [text, setText] = useState(initialText);
   const [currentScore, setCurrentScore] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string[]>([]);
@@ -110,6 +118,19 @@ export const LiveEditor: React.FC<LiveEditorProps> = ({ initialText, originalSco
             className="w-full bg-[#0A0A0A] border border-[#2A2A2A] focus:border-[#FF4400] p-4 font-mono text-xs text-[#E0E0E0] rounded-none focus:outline-none leading-relaxed resize-y"
             placeholder="Edit your resume lines here..."
           />
+          {onRoastVersion && (
+            <button
+              type="button"
+              onClick={() => onRoastVersion(text)}
+              disabled={isScoring || isFixing || isRoasting || !text.trim()}
+              className="w-full bg-[#1C1C1C] hover:bg-[#252525] border border-[#3A3A3A] hover:border-[#FF4400] text-white py-3 rounded-sm font-bebas text-xl tracking-wider transition cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              title="Run a real roast on this edited version and save it to your Burn Book"
+            >
+              <Flame className="w-4 h-4 text-[#FF4400]" />
+              {isRoasting ? 'ROASTING THIS VERSION...' : 'ROAST THIS VERSION FOR REAL'}
+            </button>
+          )}
+
           <button
             onClick={() => rescore()}
             disabled={isScoring || isFixing}
@@ -160,6 +181,7 @@ export const LiveEditor: React.FC<LiveEditorProps> = ({ initialText, originalSco
           )}
 
           <div className="border-t border-[#202020] pt-3 text-[11px] font-mono text-[#666] space-y-1">
+            <p>💡 This score is an estimate from the same rubric as your report card. Roast the version for real to save it and move your score chart.</p>
             <p>💡 The rewrite fixes weak openers and leaves [bracketed] gaps. Replace those with your real numbers.</p>
             <p>💡 A placeholder you cannot fill honestly is a bullet worth cutting.</p>
           </div>

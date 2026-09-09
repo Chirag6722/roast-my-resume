@@ -11,6 +11,7 @@
 - **🛠️ Section-by-Section Critiques**: Exact diagnosis, actionable fixes, and rewritten snippets for Summary, Experience, Skills, and Projects.
 - **✨ Polished Rewrite**: Your resume rebuilt from its own content, with weak bullets turned into achievement lines. Copy it or download as `.txt` / `.md`.
 - **📸 Viral Shareable Roast Cards**: Auto-generated high-res social card with your worst roast lines, ready for Twitter/X, LinkedIn, and Instagram.
+- **🛠️ Live Tuner**: Edit your resume in place, rewrite weak bullets, re-score against the same rubric, then roast the improved version for real.
 - **📖 The Burn Book (History)**: Every past roast, plus a score-over-time chart so you can see a resume actually getting better.
 - **🔐 Auth & Guest Mode**: Sign up (`SIGN UP. GET TORCHED.`), log in (`BACK FOR MORE PAIN?`), or continue instantly as guest.
 

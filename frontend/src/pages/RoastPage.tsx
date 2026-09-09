@@ -30,32 +30,22 @@ export const RoastPage: React.FC<RoastPageProps> = ({ initialRoastResult }) => {
   const [loadingStep, setLoadingStep] = useState('Igniting the roast engine...');
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleRoastSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file && !resumeText.trim()) {
-      setSubmitError('Add a resume first: upload a file, paste the text, or load one of the demos.');
-      return;
-    }
+  /** Runs one roast. Shared by the upload form and the Live Tuner's re-roast. */
+  const runRoast = async (source: { file: File | null; text: string }) => {
     setSubmitError(null);
-
     playFlameIgnite();
     setIsLoading(true);
     setLoadingStep('Uploading and parsing resume sections...');
 
+    const stepTimer1 = setTimeout(() => {
+      setLoadingStep('Calculating ATS keyword density & flaws...');
+    }, 1000);
+    const stepTimer2 = setTimeout(() => {
+      setLoadingStep(`Generating ${intensity.toUpperCase()} savage roast commentary...`);
+    }, 2000);
+
     try {
-      const stepTimer1 = setTimeout(() => {
-        setLoadingStep('Calculating ATS keyword density & flaws...');
-      }, 1000);
-
-      const stepTimer2 = setTimeout(() => {
-        setLoadingStep(`Generating ${intensity.toUpperCase()} savage roast commentary...`);
-      }, 2000);
-
-      const result = await api.createRoast(file, resumeText, intensity, targetJob);
-      
-      clearTimeout(stepTimer1);
-      clearTimeout(stepTimer2);
-      
+      const result = await api.createRoast(source.file, source.text, intensity, targetJob);
       setRoastResult(result);
       setActiveTab('roast');
       emberBurst();
@@ -63,8 +53,33 @@ export const RoastPage: React.FC<RoastPageProps> = ({ initialRoastResult }) => {
       // The server explains parse failures precisely; show that, not a generic line.
       setSubmitError(err instanceof Error ? err.message : 'Could not roast that resume. Please try again.');
     } finally {
+      // Clearing in `finally` matters: on the error path these used to keep
+      // firing and overwrite the message with a stale loading step.
+      clearTimeout(stepTimer1);
+      clearTimeout(stepTimer2);
       setIsLoading(false);
     }
+  };
+
+  const handleRoastSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file && !resumeText.trim()) {
+      setSubmitError('Add a resume first: upload a file, paste the text, or load one of the demos.');
+      return;
+    }
+    await runRoast({ file, text: resumeText });
+  };
+
+  /**
+   * Score the edited resume for real. The tuner's number is an estimate from the
+   * same rubric; this puts the rewritten version through the actual roast so it
+   * lands in the Burn Book and moves the score-over-time chart.
+   */
+  const handleRoastEditedVersion = async (editedText: string) => {
+    setFile(null);
+    setResumeText(editedText);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    await runRoast({ file: null, text: editedText });
   };
 
   const handleReset = () => {
@@ -241,6 +256,8 @@ export const RoastPage: React.FC<RoastPageProps> = ({ initialRoastResult }) => {
               <LiveEditor
                 initialText={roastResult.full_rewritten_resume}
                 originalScore={roastResult.ats_analysis.total_score}
+                onRoastVersion={handleRoastEditedVersion}
+                isRoasting={isLoading}
               />
             )}
             {activeTab === 'jobmatch' && (
